@@ -6,7 +6,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'medifinder-secret-key-change-in-pr
 
 export async function createUser(userData) {
   const db = getDb();
-  const { name, email, password, phone } = userData;
+  const { name, email, password, phone, role = 'user' } = userData;
   
   // Check if user exists
   const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
@@ -17,14 +17,20 @@ export async function createUser(userData) {
   // Hash password
   const hashedPassword = await bcrypt.hash(password, 10);
   
+  // Ensure role is valid
+  const userRole = (role === 'pharmacy') ? 'pharmacy' : 'user';
+  
   // Create user ID
-  const id = `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const id = userRole === 'pharmacy' 
+    ? `pharmacy-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    : `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   
   // Insert user
-  db.prepare(`
+  const insertStmt = db.prepare(`
     INSERT INTO users (id, email, name, phone, password, role)
-    VALUES (?, ?, ?, ?, ?, 'user')
-  `).run(id, email, name, phone || null, hashedPassword);
+    VALUES (?, ?, ?, ?, ?, ?)
+  `);
+  insertStmt.run(id, email, name, phone || null, hashedPassword, userRole);
   
   // Get created user
   const user = db.prepare('SELECT id, email, name, phone, role, created_at FROM users WHERE id = ?').get(id);

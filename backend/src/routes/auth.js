@@ -6,7 +6,7 @@ export const authRouter = express.Router();
 // POST /api/auth/signup - Register new user
 authRouter.post('/signup', async (req, res) => {
   try {
-    const { name, email, password, phone } = req.body;
+    const { name, email, password, phone, role = 'user' } = req.body;
 
     // Validation
     if (!name || !email || !password) {
@@ -23,7 +23,15 @@ authRouter.post('/signup', async (req, res) => {
       });
     }
 
-    const result = await createUser({ name, email, password, phone });
+    // Validate role
+    if (role && !['user', 'pharmacy'].includes(role)) {
+      return res.status(400).json({ 
+        error: 'Validation error', 
+        message: 'Role must be either "user" or "pharmacy"' 
+      });
+    }
+
+    const result = await createUser({ name, email, password, phone, role });
     res.status(201).json(result);
   } catch (error) {
     console.error('Signup error:', error);

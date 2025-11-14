@@ -49,14 +49,24 @@ export function RootLayout() {
               >
                 Prescription
               </NavLink>
-              <NavLink 
-                to="/dashboard" 
-                className={({ isActive }) => 
-                  `font-medium transition-colors ${isActive ? 'text-primary-600' : 'text-gray-700 hover:text-primary-600'}`
-                }
-              >
-                Dashboard
-              </NavLink>
+              {isAuthenticated && user?.role === 'pharmacy' && (
+                <NavLink 
+                  to="/dashboard" 
+                  className={({ isActive }) => 
+                    `font-medium transition-colors ${isActive ? 'text-primary-600' : 'text-gray-700 hover:text-primary-600'}`
+                  }
+                >
+                  Dashboard
+                </NavLink>
+              )}
+              {!isAuthenticated && (
+                <Link 
+                  to="/pharmacy/login" 
+                  className="font-medium transition-colors text-gray-700 hover:text-primary-600"
+                >
+                  Pharmacy Login
+                </Link>
+              )}
               <NavLink 
                 to="/notifications" 
                 className={({ isActive }) => 

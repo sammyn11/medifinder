@@ -104,7 +104,8 @@ export async function signupUser(
   name: string,
   email: string,
   password: string,
-  phone?: string
+  phone?: string,
+  role: 'user' | 'pharmacy' = 'user'
 ): Promise<AuthResponse> {
   try {
     const response = await fetch(`${API_BASE}/auth/signup`, {
@@ -112,7 +113,7 @@ export async function signupUser(
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ name, email, password, phone }),
+      body: JSON.stringify({ name, email, password, phone, role }),
     });
     
     if (response.ok) {
@@ -137,11 +138,11 @@ export async function signupUser(
   
   // Mock user response
   const user: User = {
-    id: `user-${Date.now()}`,
+    id: role === 'pharmacy' ? `pharmacy-${Date.now()}` : `user-${Date.now()}`,
     email,
     name,
     phone,
-    role: 'user',
+    role,
   };
   
   const token = `mock-token-${Date.now()}`;

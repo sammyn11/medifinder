@@ -142,7 +142,18 @@ export function Pharmacies() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {items.map((p) => {
+            {items
+              .filter(p => {
+                // If searching for a medicine, only show pharmacies that have it in stock
+                if (queryParams.q) {
+                  const matchingMedicines = p.stocks.filter(s => 
+                    s.name.toLowerCase().includes((queryParams.q || '').toLowerCase())
+                  );
+                  return matchingMedicines.some(m => m.quantity > 0);
+                }
+                return true;
+              })
+              .map((p) => {
               const matchingMedicines = queryParams.q 
                 ? p.stocks.filter(s => s.name.toLowerCase().includes((queryParams.q || '').toLowerCase()))
                 : [];
@@ -196,25 +207,27 @@ export function Pharmacies() {
                     {/* Medicine Availability */}
                     {queryParams.q && matchingMedicines.length > 0 && (
                       <div className="border-t pt-3">
-                        <p className="text-xs font-semibold text-gray-700 mb-2">Medicine Availability:</p>
+                        <p className="text-xs font-semibold text-gray-700 mb-2">Medicine Available:</p>
                         <div className="space-y-2">
-                          {matchingMedicines.map((med) => (
-                            <div key={med.id} className="space-y-1">
-                              <div className="flex items-center justify-between text-sm">
-                                <span className="font-medium text-gray-900">{med.name} {med.strength}</span>
-                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                                  med.quantity > 0 
-                                    ? 'bg-pharmacy-100 text-pharmacy-700' 
-                                    : 'bg-red-100 text-red-700'
-                                }`}>
-                                  {med.quantity > 0 ? `✓ ${med.quantity} in stock` : 'Out of stock'}
+                          {matchingMedicines.filter(m => m.quantity > 0).map((med) => (
+                            <div key={med.id} className="space-y-2 p-2 bg-pharmacy-50 rounded-lg">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <span className="font-medium text-gray-900 text-sm">{med.name} {med.strength}</span>
+                                  <p className="text-xs text-primary-600 font-semibold mt-1">
+                                    {med.priceRWF.toLocaleString()} RWF
+                                  </p>
+                                </div>
+                                <span className="px-2 py-1 rounded-full text-xs font-semibold bg-pharmacy-100 text-pharmacy-700">
+                                  ✓ {med.quantity} in stock
                                 </span>
                               </div>
-                              {med.quantity > 0 && (
-                                <p className="text-xs text-primary-600 font-semibold">
-                                  {med.priceRWF.toLocaleString()} RWF
-                                </p>
-                              )}
+                              <Link
+                                to={`/order/${p.id}/${med.id}?name=${encodeURIComponent(med.name)}`}
+                                className="block w-full btn-primary text-center text-sm py-2"
+                              >
+                                Order Now →
+                              </Link>
                             </div>
                           ))}
                         </div>
@@ -223,18 +236,20 @@ export function Pharmacies() {
 
                     {/* Action Buttons */}
                     <div className="flex gap-2 pt-2">
-                      <Link 
-                        to={`/pharmacies/${p.id}`} 
-                        className="flex-1 btn-primary text-center text-sm py-2"
-                      >
-                        View Details
-                      </Link>
-                      {hasStock && (
+                      {!queryParams.q && (
                         <Link 
                           to={`/pharmacies/${p.id}`} 
-                          className="flex-1 btn-secondary text-center text-sm py-2 border-pharmacy-600 text-pharmacy-600 hover:bg-pharmacy-50"
+                          className="flex-1 btn-primary text-center text-sm py-2"
                         >
-                          Order Now
+                          View All Medicines
+                        </Link>
+                      )}
+                      {queryParams.q && !hasStock && (
+                        <Link 
+                          to={`/pharmacies/${p.id}`} 
+                          className="flex-1 btn-secondary text-center text-sm py-2 border-primary-600 text-primary-600 hover:bg-primary-50"
+                        >
+                          View Other Medicines
                         </Link>
                       )}
                     </div>

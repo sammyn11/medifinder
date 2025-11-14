@@ -13,7 +13,7 @@ interface AuthState {
   user: User | null;
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string, phone?: string) => Promise<void>;
+  signup: (name: string, email: string, password: string, phone?: string, role?: 'user' | 'pharmacy') => Promise<void>;
   logout: () => void;
   setUser: (user: User | null, token: string | null) => void;
 }
@@ -31,9 +31,9 @@ export const useAuthStore = create<AuthState>()(
           token: result.token,
         });
       },
-      signup: async (name: string, email: string, password: string, phone?: string) => {
+      signup: async (name: string, email: string, password: string, phone?: string, role: 'user' | 'pharmacy' = 'user') => {
         const { signupUser } = await import('@/services/api');
-        const result = await signupUser(name, email, password, phone);
+        const result = await signupUser(name, email, password, phone, role);
         set({
           user: result.user,
           token: result.token,

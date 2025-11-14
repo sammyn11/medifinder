@@ -72,6 +72,9 @@ export function Home() {
                 <Link to="/signup" className="btn-primary bg-pharmacy-500 hover:bg-pharmacy-600">
                   Sign Up
                 </Link>
+                <Link to="/pharmacy/login" className="btn-secondary bg-white/20 backdrop-blur-sm text-white border-white hover:bg-white/30 text-sm">
+                  🏥 Pharmacy Login
+                </Link>
               </div>
             </div>
             

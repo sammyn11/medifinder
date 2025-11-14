@@ -85,8 +85,42 @@ export function initializeDatabase() {
       phone TEXT,
       password TEXT NOT NULL,
       role TEXT DEFAULT 'user',
+      pharmacy_id TEXT,
+      FOREIGN KEY (pharmacy_id) REFERENCES pharmacies(id) ON DELETE SET NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // Create orders table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS orders (
+      id TEXT PRIMARY KEY,
+      pharmacy_id TEXT NOT NULL,
+      customer_name TEXT NOT NULL,
+      customer_email TEXT,
+      customer_phone TEXT,
+      total_rwf REAL NOT NULL,
+      status TEXT DEFAULT 'pending',
+      prescription_status TEXT DEFAULT 'pending',
+      delivery BOOLEAN DEFAULT 0,
+      delivery_address TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (pharmacy_id) REFERENCES pharmacies(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Create order_items table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS order_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      order_id TEXT NOT NULL,
+      medicine_id INTEGER NOT NULL,
+      quantity INTEGER NOT NULL,
+      price_rwf REAL NOT NULL,
+      FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+      FOREIGN KEY (medicine_id) REFERENCES medicines(id) ON DELETE CASCADE
     )
   `);
 
@@ -96,6 +130,10 @@ export function initializeDatabase() {
     CREATE INDEX IF NOT EXISTS idx_stock_pharmacy ON pharmacy_stocks(pharmacy_id);
     CREATE INDEX IF NOT EXISTS idx_stock_medicine ON pharmacy_stocks(medicine_id);
     CREATE INDEX IF NOT EXISTS idx_medicine_name ON medicines(name);
+    CREATE INDEX IF NOT EXISTS idx_user_pharmacy ON users(pharmacy_id);
+    CREATE INDEX IF NOT EXISTS idx_order_pharmacy ON orders(pharmacy_id);
+    CREATE INDEX IF NOT EXISTS idx_order_status ON orders(status);
+    CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
   `);
 
   return db;
