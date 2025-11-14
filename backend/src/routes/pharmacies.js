@@ -1,5 +1,5 @@
 import express from 'express';
-import { pharmacies } from '../data.js';
+import { searchPharmacies, getPharmacyById } from '../services/pharmacyService.js';
 
 export const pharmaciesRouter = express.Router();
 
@@ -7,33 +7,10 @@ export const pharmaciesRouter = express.Router();
 pharmaciesRouter.get('/', (req, res) => {
   try {
     const { q, loc, insurance } = req.query;
-    let results = [...pharmacies];
-
-    // Filter by location
-    if (loc) {
-      results = results.filter(p => 
-        p.sector.toLowerCase().includes(loc.toLowerCase())
-      );
-    }
-
-    // Filter by insurance
-    if (insurance) {
-      results = results.filter(p => 
-        p.accepts.map(a => a.toLowerCase()).includes(insurance.toLowerCase())
-      );
-    }
-
-    // Filter by medicine name (search in stocks)
-    if (q) {
-      results = results.filter(p => 
-        p.stocks.some(s => 
-          s.name.toLowerCase().includes(q.toLowerCase())
-        )
-      );
-    }
-
+    const results = searchPharmacies({ q, loc, insurance });
     res.json(results);
   } catch (error) {
+    console.error('Error searching pharmacies:', error);
     res.status(500).json({ error: 'Failed to search pharmacies', message: error.message });
   }
 });
@@ -42,7 +19,7 @@ pharmaciesRouter.get('/', (req, res) => {
 pharmaciesRouter.get('/:id', (req, res) => {
   try {
     const { id } = req.params;
-    const pharmacy = pharmacies.find(p => p.id === id);
+    const pharmacy = getPharmacyById(id);
 
     if (!pharmacy) {
       return res.status(404).json({ error: 'Pharmacy not found' });
@@ -50,6 +27,7 @@ pharmaciesRouter.get('/:id', (req, res) => {
 
     res.json(pharmacy);
   } catch (error) {
+    console.error('Error getting pharmacy:', error);
     res.status(500).json({ error: 'Failed to get pharmacy', message: error.message });
   }
 });

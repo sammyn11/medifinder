@@ -2,9 +2,19 @@ import express from 'express';
 import cors from 'cors';
 import { pharmaciesRouter } from './routes/pharmacies.js';
 import { authRouter } from './routes/auth.js';
+import { initializeDatabase } from './database/schema.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Initialize database
+console.log('📊 Initializing database...');
+try {
+  initializeDatabase();
+  console.log('✅ Database initialized successfully');
+} catch (error) {
+  console.error('❌ Database initialization error:', error);
+}
 
 // Middleware
 app.use(cors());
