@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 export function Checkout() {
   const navigate = useNavigate();
 
-  // Redirect to prescription page for full checkout flow
   useEffect(() => {
     navigate('/prescription', { replace: true });
   }, [navigate]);
@@ -18,6 +17,4 @@ export function Checkout() {
     </div>
   );
 }
-
-
 

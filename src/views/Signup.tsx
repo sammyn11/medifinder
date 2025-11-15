@@ -1,10 +1,10 @@
-import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 
 export function Signup() {
   const navigate = useNavigate();
-  const signup = useAuthStore(state => state.signup);
+  const { signup } = useAuthStore();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -13,11 +13,10 @@ export function Signup() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    // Validation
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -32,154 +31,119 @@ export function Signup() {
 
     try {
       await signup(name, email, password, phone || undefined);
-      navigate('/');
+      navigate('/', { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Sign up failed. Please try again.');
+      setError(err instanceof Error ? err.message : 'Signup failed. Please try again.');
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="card max-w-md w-full">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Sign Up</h2>
-          <p className="text-gray-600">Create your MediFinder account</p>
-        </div>
-
-        {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-            {error}
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-pharmacy-50 flex items-center justify-center py-12 px-4">
+      <div className="max-w-md w-full">
+        <div className="card">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
+            <p className="text-gray-600">Join MediFinder to find medicines easily</p>
           </div>
-        )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-              Full Name
-            </label>
-            <input
-              id="name"
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="input-field w-full"
-              placeholder="John Doe"
+          {error && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Full Name
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="input-field"
+                placeholder="John Doe"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="input-field"
+                placeholder="your.email@example.com"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Phone Number (Optional)
+              </label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="input-field"
+                placeholder="+250788123456"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="input-field"
+                placeholder="At least 6 characters"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                className="input-field"
+                placeholder="Confirm your password"
+              />
+            </div>
+
+            <button
+              type="submit"
               disabled={loading}
-            />
+              className="btn-primary w-full"
+            >
+              {loading ? 'Creating account...' : 'Create Account'}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              Already have an account?{' '}
+              <Link to="/login" className="text-primary-600 hover:text-primary-700 font-medium">
+                Sign in
+              </Link>
+            </p>
           </div>
-
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              Email Address
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="input-field w-full"
-              placeholder="your.email@example.com"
-              disabled={loading}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-              Phone Number <span className="text-gray-500 text-xs">(Optional)</span>
-            </label>
-            <input
-              id="phone"
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="input-field w-full"
-              placeholder="+250 788 123 456"
-              disabled={loading}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="input-field w-full"
-              placeholder="At least 6 characters"
-              disabled={loading}
-            />
-            <p className="mt-1 text-xs text-gray-500">Must be at least 6 characters long</p>
-          </div>
-
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-              Confirm Password
-            </label>
-            <input
-              id="confirmPassword"
-              type="password"
-              required
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="input-field w-full"
-              placeholder="Confirm your password"
-              disabled={loading}
-            />
-          </div>
-
-          <div className="flex items-center">
-            <input
-              id="terms"
-              name="terms"
-              type="checkbox"
-              required
-              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-              disabled={loading}
-            />
-            <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
-              I agree to the{' '}
-              <a href="#" className="text-primary-600 hover:text-primary-500">
-                Terms and Conditions
-              </a>{' '}
-              and{' '}
-              <a href="#" className="text-primary-600 hover:text-primary-500">
-                Privacy Policy
-              </a>
-            </label>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-primary w-full py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Creating account...' : 'Sign Up'}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            Already have an account?{' '}
-            <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500">
-              Login
-            </Link>
-          </p>
-        </div>
-
-        <div className="mt-4 text-center">
-          <Link to="/" className="text-sm text-gray-500 hover:text-gray-700">
-            ← Back to Home
-          </Link>
         </div>
       </div>
     </div>
   );
 }
+

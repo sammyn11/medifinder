@@ -4,7 +4,7 @@ import { useCartStore } from '@/store/cartStore';
 
 export function Prescription() {
   const navigate = useNavigate();
-  const { items, total } = useCartStore();
+  const { items, total, clear } = useCartStore();
   const [fileName, setFileName] = useState<string | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [status, setStatus] = useState<'idle' | 'uploading' | 'verifying' | 'approved' | 'rejected'>('idle');
@@ -19,7 +19,6 @@ export function Prescription() {
     setFileName(file.name);
     setStatus('uploading');
     
-    // Create preview for images
     if (file.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -37,7 +36,6 @@ export function Prescription() {
   async function handlePlaceOrder(e: React.FormEvent) {
     e.preventDefault();
     
-    // Check if prescription is required and uploaded
     const requiresPrescription = items.some(item => item.requiresPrescription);
     if (requiresPrescription && !filePreview && !fileName) {
       alert('Please upload your prescription first');
@@ -47,13 +45,11 @@ export function Prescription() {
     setPlacing(true);
     
     try {
-      // Get pharmacy ID from first item (assuming all items are from same pharmacy)
       const pharmacyId = items[0]?.pharmacyId;
       if (!pharmacyId) {
         throw new Error('Pharmacy ID not found');
       }
 
-      // Get auth token
       const authStorage = localStorage.getItem('auth-storage');
       let token = null;
       if (authStorage) {
@@ -65,7 +61,6 @@ export function Prescription() {
         }
       }
 
-      // Create order
       const response = await fetch('http://localhost:3000/api/orders', {
         method: 'POST',
         headers: {
@@ -86,10 +81,7 @@ export function Prescription() {
       });
 
       if (response.ok) {
-        const result = await response.json();
-        // Clear cart
         clear();
-        // Navigate to success page
         navigate('/notifications');
       } else {
         const error = await response.json();
@@ -107,7 +99,6 @@ export function Prescription() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white py-8">
         <div className="max-w-4xl mx-auto px-4">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">📋 Prescription & Order</h1>
@@ -117,9 +108,7 @@ export function Prescription() {
 
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="grid md:grid-cols-3 gap-6">
-          {/* Main Content */}
           <div className="md:col-span-2 space-y-6">
-            {/* Order Summary */}
             {items.length > 0 && (
               <div className="card">
                 <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -147,7 +136,6 @@ export function Prescription() {
               </div>
             )}
 
-            {/* Prescription Upload */}
             <div className="card">
               <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <span>📄</span> Prescription Upload
@@ -158,16 +146,7 @@ export function Prescription() {
                 )}
               </h2>
               
-              {!requiresPrescription && (
-                <div className="mb-4 p-4 bg-primary-50 border border-primary-200 rounded-lg">
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Note:</span> Your order doesn't require a prescription, but you can upload one if needed.
-                  </p>
-                </div>
-              )}
-
               <div className="space-y-4">
-                {/* File Upload Area */}
                 <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-primary-400 transition-colors">
                   <input
                     type="file"
@@ -192,7 +171,6 @@ export function Prescription() {
                   </label>
                 </div>
 
-                {/* File Preview */}
                 {filePreview && (
                   <div className="border rounded-lg p-4 bg-gray-50">
                     <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
@@ -200,21 +178,7 @@ export function Prescription() {
                   </div>
                 )}
 
-                {/* File Name */}
-                {fileName && !filePreview && (
-                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
-                    <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                    </svg>
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900">{fileName}</p>
-                      <p className="text-sm text-gray-600">PDF Document</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Status */}
-      {status !== 'idle' && (
+                {status !== 'idle' && (
                   <div className={`p-4 rounded-lg ${
                     status === 'approved' ? 'bg-pharmacy-50 border border-pharmacy-200' :
                     status === 'rejected' ? 'bg-red-50 border border-red-200' :
@@ -241,21 +205,12 @@ export function Prescription() {
                           <p className="text-pharmacy-700 font-medium">Prescription verified and approved!</p>
                         </>
                       )}
-                      {status === 'rejected' && (
-                        <>
-                          <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                          <p className="text-red-700 font-medium">Prescription was rejected. Please upload a valid prescription.</p>
-                        </>
-                      )}
                     </div>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Delivery Options */}
             <div className="card">
               <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <span>🚚</span> Delivery Options
@@ -306,9 +261,7 @@ export function Prescription() {
             </div>
           </div>
 
-          {/* Sidebar */}
           <div className="space-y-6">
-            {/* Order Actions */}
             <div className="card bg-primary-50 border-2 border-primary-200">
               <h3 className="font-bold text-gray-900 mb-4">Order Details</h3>
               <div className="space-y-3 text-sm">
@@ -331,7 +284,6 @@ export function Prescription() {
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="space-y-3">
               <button
                 onClick={handlePlaceOrder}
@@ -344,24 +296,10 @@ export function Prescription() {
                 Back to Cart
               </Link>
             </div>
-
-            {/* Info Card */}
-            <div className="card bg-yellow-50 border border-yellow-200">
-              <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                <span>ℹ️</span> Important
-              </h3>
-              <p className="text-sm text-gray-700">
-                {requiresPrescription 
-                  ? 'Your order requires a valid prescription. Please upload it before placing the order.'
-                  : 'For prescription medicines, ensure you have a valid doctor\'s prescription.'}
-              </p>
-            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-
 

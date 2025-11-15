@@ -18,11 +18,17 @@ export function Home() {
     <div className="min-h-screen">
       {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-pharmacy-600 text-white overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}></div>
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0">
+          <img 
+            src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=1920&h=1080&fit=crop&q=80" 
+            alt="Healthcare background" 
+            className="w-full h-full object-cover opacity-20"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-600/90 via-primary-700/85 to-pharmacy-600/90"></div>
         </div>
         
         <div className="relative max-w-7xl mx-auto px-4 py-20 md:py-32">
@@ -85,10 +91,10 @@ export function Home() {
                 <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20 shadow-2xl">
                   <img 
                     src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&h=600&fit=crop&q=80" 
-                    alt="Modern Pharmacy" 
-                    className="rounded-2xl shadow-xl w-full h-auto"
+                    alt="Modern Pharmacy in Kigali" 
+                    className="rounded-2xl shadow-xl w-full h-auto object-cover"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iIzB4YTc1ZWIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIzNiIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIiBmb250LWZhbWlseT0iQXJpYWwiPk1lZGlGaW5kZXI8L3RleHQ+PC9zdmc+';
+                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=600&fit=crop&q=80';
                     }}
                   />
                 </div>
@@ -147,24 +153,30 @@ export function Home() {
       </div>
 
       {/* How It Works Section */}
-      <div className="bg-primary-50 py-16">
-        <div className="max-w-7xl mx-auto px-4">
+      <div className="relative bg-primary-50 py-16 overflow-hidden">
+        <div className="relative max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Simple steps to find and order your medicines in Kigali
+            </p>
           </div>
           
           <div className="grid md:grid-cols-4 gap-6">
             {[
-              { step: '1', title: 'Search Medicine', desc: 'Enter the medicine name you need' },
-              { step: '2', title: 'Find Pharmacies', desc: 'See which pharmacies have it in stock' },
-              { step: '3', title: 'Check Insurance', desc: 'Verify insurance acceptance' },
-              { step: '4', title: 'Order & Delivery', desc: 'Place order and get it delivered' },
+              { step: '1', title: 'Search Medicine', desc: 'Enter the medicine name you need', icon: '🔍' },
+              { step: '2', title: 'Find Pharmacies', desc: 'See which pharmacies have it in stock', icon: '🏥' },
+              { step: '3', title: 'Check Insurance', desc: 'Verify insurance acceptance', icon: '🛡️' },
+              { step: '4', title: 'Order & Delivery', desc: 'Place order and get it delivered', icon: '🚚' },
             ].map((item) => (
-              <div key={item.step} className="text-center">
-                <div className="w-16 h-16 bg-primary-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+              <div key={item.step} className="text-center card hover:scale-105 transition-transform duration-200">
+                <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-pharmacy-500 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg">
+                  {item.icon}
+                </div>
+                <div className="w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center mx-auto mb-3 text-sm font-bold">
                   {item.step}
                 </div>
-                <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
+                <h3 className="font-semibold text-lg mb-2 text-gray-900">{item.title}</h3>
                 <p className="text-gray-600 text-sm">{item.desc}</p>
               </div>
             ))}
@@ -172,14 +184,88 @@ export function Home() {
         </div>
       </div>
 
+      {/* Kigali Context Section */}
+      <div className="bg-white py-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Serving Kigali, Rwanda
+              </h2>
+              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+                MediFinder is designed specifically for residents of Kigali who face challenges finding their prescribed medicines. We understand the frustration of traveling across the city only to find that a pharmacy doesn't have your medicine or doesn't accept your insurance.
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-pharmacy-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-5 h-5 text-pharmacy-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-1">Real-time Stock Information</h3>
+                    <p className="text-gray-600 text-sm">Know before you go - see which pharmacies have your medicine in stock</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-1">Insurance Verification</h3>
+                    <p className="text-gray-600 text-sm">Filter by RSSB, Mutuelle, and other insurance providers</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-accent-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-5 h-5 text-accent-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-1">Home Delivery Available</h3>
+                    <p className="text-gray-600 text-sm">Get your medicines delivered to your door for convenience and safety</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="relative">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                <img 
+                  src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=600&fit=crop&q=80" 
+                  alt="Healthcare in Kigali" 
+                  className="w-full h-auto object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=600&fit=crop&q=80';
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-primary-900/50 to-transparent"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* CTA Section */}
-      <div className="bg-gradient-to-r from-pharmacy-500 to-pharmacy-600 text-white py-16">
-        <div className="max-w-4xl mx-auto px-4 text-center">
+      <div className="relative bg-gradient-to-r from-pharmacy-500 via-pharmacy-600 to-primary-600 text-white py-16 overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <img 
+            src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=1920&h=600&fit=crop&q=80" 
+            alt="Healthcare background" 
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+        </div>
+        <div className="relative max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Find Your Medicine?</h2>
-          <p className="text-xl mb-8 text-pharmacy-100">
+          <p className="text-xl mb-8 text-white/90">
             Start searching for pharmacies in Kigali today. Save time, save money, get better.
           </p>
-          <Link to="/pharmacies" className="btn-primary bg-white text-pharmacy-600 hover:bg-primary-50 text-lg inline-block">
+          <Link to="/pharmacies" className="btn-primary bg-white text-pharmacy-600 hover:bg-primary-50 text-lg inline-block shadow-xl">
             Browse Pharmacies
           </Link>
         </div>
@@ -187,6 +273,4 @@ export function Home() {
     </div>
   );
 }
-
-
 

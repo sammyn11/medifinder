@@ -144,7 +144,6 @@ export function Pharmacies() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {items
               .filter(p => {
-                // If searching for a medicine, only show pharmacies that have it in stock
                 if (queryParams.q) {
                   const matchingMedicines = p.stocks.filter(s => 
                     s.name.toLowerCase().includes((queryParams.q || '').toLowerCase())
@@ -168,7 +167,7 @@ export function Pharmacies() {
                       alt={p.name}
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
+                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&h=300&fit=crop&q=80';
                       }}
                     />
                     <div className="absolute top-3 right-3">
@@ -290,5 +289,4 @@ function FilterLink({ label, toParams, active, icon }: {
     </Link>
   );
 }
-
 

@@ -58,5 +58,5 @@ export const useAuthStore = create<AuthState>()(
   )
 );
 
-// Selector for isAuthenticated
 export const useIsAuthenticated = () => useAuthStore(state => state.user !== null);
+

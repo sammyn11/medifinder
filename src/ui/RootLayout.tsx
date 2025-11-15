@@ -1,119 +1,61 @@
-import { Link, Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { useCartStore } from '@/store/cartStore';
+import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 
 export function RootLayout() {
-  const location = useLocation();
+  const { user, logout } = useAuthStore();
   const navigate = useNavigate();
-  const cartItems = useCartStore(state => state.items);
-  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  const user = useAuthStore(state => state.user);
-  const logout = useAuthStore(state => state.logout);
-  const isAuthenticated = user !== null;
-  
-  // Don't show header/footer on full-page views
-  const isFullPage = ['/dashboard', '/notifications'].includes(location.pathname);
 
-  function handleLogout() {
+  const handleLogout = () => {
     logout();
     navigate('/');
-  }
-
-  if (isFullPage) {
-    return <Outlet />;
-  }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="border-b bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="h-16 flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2">
-              <span className="text-2xl">💊</span>
-              <span className="font-bold text-xl text-primary-600">MediFinder</span>
-            </Link>
-            <nav className="hidden md:flex items-center gap-6 text-sm">
-              <NavLink 
-                to="/pharmacies" 
-                className={({ isActive }) => 
-                  `font-medium transition-colors ${isActive ? 'text-primary-600' : 'text-gray-700 hover:text-primary-600'}`
-                }
-              >
-                Search
-              </NavLink>
-              <NavLink 
-                to="/prescription" 
-                className={({ isActive }) => 
-                  `font-medium transition-colors ${isActive ? 'text-primary-600' : 'text-gray-700 hover:text-primary-600'}`
-                }
-              >
-                Prescription
-              </NavLink>
-              {isAuthenticated && user?.role === 'pharmacy' && (
-                <NavLink 
-                  to="/dashboard" 
-                  className={({ isActive }) => 
-                    `font-medium transition-colors ${isActive ? 'text-primary-600' : 'text-gray-700 hover:text-primary-600'}`
-                  }
-                >
-                  Dashboard
-                </NavLink>
-              )}
-              {!isAuthenticated && (
-                <Link 
-                  to="/pharmacy/login" 
-                  className="font-medium transition-colors text-gray-700 hover:text-primary-600"
-                >
-                  Pharmacy Login
+      {/* Navigation */}
+      <nav className="bg-white shadow-md border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-8">
+              <Link to="/" className="flex items-center space-x-2">
+                <span className="text-2xl font-bold text-primary-600">💊 MediFinder</span>
+              </Link>
+              <div className="hidden md:flex space-x-4">
+                <Link to="/pharmacies" className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                  Find Medicine
                 </Link>
-              )}
-              <NavLink 
-                to="/notifications" 
-                className={({ isActive }) => 
-                  `font-medium transition-colors ${isActive ? 'text-primary-600' : 'text-gray-700 hover:text-primary-600'}`
-                }
-              >
-                Notifications
-              </NavLink>
-              <NavLink 
-                to="/cart" 
-                className={({ isActive }) => 
-                  `font-medium transition-colors relative ${isActive ? 'text-primary-600' : 'text-gray-700 hover:text-primary-600'}`
-                }
-              >
-                Cart
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-pharmacy-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                    {cartCount}
-                  </span>
+                {user && user.role !== 'pharmacy' && (
+                  <Link to="/cart" className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                    Cart
+                  </Link>
                 )}
-              </NavLink>
-            </nav>
-            <div className="flex items-center gap-3">
-              {isAuthenticated && user ? (
+                {user && user.role === 'pharmacy' && (
+                  <Link to="/dashboard" className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                    Dashboard
+                  </Link>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              {user ? (
                 <>
-                  <div className="hidden md:block text-sm text-gray-700">
-                    <span className="font-medium">Hello, {user.name}</span>
-                  </div>
+                  <span className="text-sm text-gray-700 hidden md:block">
+                    {user.name}
+                  </span>
                   <button
                     onClick={handleLogout}
-                    className="text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors"
+                    className="btn-secondary text-sm py-2 px-4"
                   >
                     Logout
                   </button>
                 </>
               ) : (
                 <>
-                  <Link 
-                    to="/login" 
-                    className="text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors"
-                  >
+                  <Link to="/login" className="btn-secondary text-sm py-2 px-4">
                     Login
                   </Link>
-                  <Link 
-                    to="/signup" 
-                    className="btn-primary text-sm px-4 py-2"
-                  >
+                  <Link to="/signup" className="btn-primary text-sm py-2 px-4">
                     Sign Up
                   </Link>
                 </>
@@ -121,52 +63,44 @@ export function RootLayout() {
             </div>
           </div>
         </div>
-      </header>
+      </nav>
+
+      {/* Main Content */}
       <main className="flex-1">
         <Outlet />
       </main>
-      <footer className="border-t bg-white mt-auto">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="grid md:grid-cols-4 gap-6 mb-6">
+
+      {/* Footer */}
+      <footer className="bg-white text-gray-900 py-8 mt-16 border-t border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-3 gap-8">
             <div>
-              <h3 className="font-bold text-gray-900 mb-3">MediFinder</h3>
-              <p className="text-sm text-gray-600">
-                Your trusted partner for finding medicines and pharmacies in Kigali, Rwanda.
+              <h3 className="text-lg font-bold mb-4 text-gray-900">MediFinder</h3>
+              <p className="text-gray-600 text-sm">
+                Helping residents of Kigali find their prescribed medicines quickly and easily.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900 mb-3">Quick Links</h4>
+              <h4 className="font-semibold mb-4 text-gray-900">Quick Links</h4>
               <ul className="space-y-2 text-sm text-gray-600">
-                <li><Link to="/pharmacies" className="hover:text-primary-600">Search Pharmacies</Link></li>
-                <li><Link to="/prescription" className="hover:text-primary-600">Upload Prescription</Link></li>
-                <li><Link to="/dashboard" className="hover:text-primary-600">Pharmacy Dashboard</Link></li>
+                <li><Link to="/pharmacies" className="hover:text-primary-600 transition-colors">Find Medicine</Link></li>
+                <li><Link to="/login" className="hover:text-primary-600 transition-colors">Login</Link></li>
+                <li><Link to="/signup" className="hover:text-primary-600 transition-colors">Sign Up</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900 mb-3">Support</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><Link to="/notifications" className="hover:text-primary-600">Order Status</Link></li>
-                <li><a href="#" className="hover:text-primary-600">Help Center</a></li>
-                <li><a href="#" className="hover:text-primary-600">Contact Us</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-3">Connect</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="#" className="hover:text-primary-600">About Us</a></li>
-                <li><a href="#" className="hover:text-primary-600">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-primary-600">Terms of Service</a></li>
-              </ul>
+              <h4 className="font-semibold mb-4 text-gray-900">Contact</h4>
+              <p className="text-gray-600 text-sm">
+                Serving Kigali, Rwanda
+              </p>
             </div>
           </div>
-          <div className="border-t pt-4 text-center text-sm text-gray-500">
-            © {new Date().getFullYear()} MediFinder. All rights reserved.
+          <div className="border-t border-gray-200 mt-8 pt-8 text-center text-sm text-gray-600">
+            <p>&copy; 2024 MediFinder. All rights reserved.</p>
           </div>
         </div>
       </footer>
     </div>
   );
 }
-
-
 

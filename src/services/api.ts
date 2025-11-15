@@ -55,7 +55,6 @@ export async function getPharmacy(id: string): Promise<Pharmacy | undefined> {
     console.warn('API unavailable, using mock data', error);
   }
   
-  // Fallback to mock data
   await new Promise(r => setTimeout(r, 150));
   return pharmacies.find(p => p.id === id);
 }
@@ -73,21 +72,21 @@ export async function loginUser(email: string, password: string): Promise<AuthRe
     if (response.ok) {
       return await response.json();
     }
-    throw new Error('Login failed');
+    const error = await response.json();
+    throw new Error(error.message || 'Login failed');
   } catch (error) {
+    if (error instanceof Error && error.message !== 'Login failed') {
+      throw error;
+    }
     console.warn('API unavailable, using mock authentication', error);
   }
   
-  // Mock authentication - simulate API delay
   await new Promise(r => setTimeout(r, 500));
   
-  // In a real app, validate credentials properly
-  // For demo purposes, accept any email/password
   if (!email || !password) {
     throw new Error('Email and password are required');
   }
   
-  // Mock user response
   const user: User = {
     id: `user-${Date.now()}`,
     email,
@@ -119,15 +118,17 @@ export async function signupUser(
     if (response.ok) {
       return await response.json();
     }
-    throw new Error('Signup failed');
+    const error = await response.json();
+    throw new Error(error.message || 'Signup failed');
   } catch (error) {
+    if (error instanceof Error && error.message !== 'Signup failed') {
+      throw error;
+    }
     console.warn('API unavailable, using mock authentication', error);
   }
   
-  // Mock authentication - simulate API delay
   await new Promise(r => setTimeout(r, 500));
   
-  // Validate input
   if (!name || !email || !password) {
     throw new Error('Name, email, and password are required');
   }
@@ -136,7 +137,6 @@ export async function signupUser(
     throw new Error('Password must be at least 6 characters');
   }
   
-  // Mock user response
   const user: User = {
     id: role === 'pharmacy' ? `pharmacy-${Date.now()}` : `user-${Date.now()}`,
     email,
@@ -149,5 +149,4 @@ export async function signupUser(
   
   return { user, token };
 }
-
 

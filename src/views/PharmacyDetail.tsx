@@ -22,13 +22,11 @@ export function PharmacyDetail() {
   }, [id]);
 
   const handleAddToCart = (stock: any) => {
-    // Check authentication
     if (!user) {
       navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
       return;
     }
 
-    // Don't allow pharmacies to add to cart
     if (user.role === 'pharmacy') {
       alert('Pharmacy accounts cannot place orders. Please use a regular user account.');
       return;
@@ -71,7 +69,6 @@ export function PharmacyDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header Section */}
       <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white py-8">
         <div className="max-w-7xl mx-auto px-4">
           <button 
@@ -90,9 +87,7 @@ export function PharmacyDetail() {
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid md:grid-cols-3 gap-6">
-          {/* Main Content */}
           <div className="md:col-span-2 space-y-6">
-            {/* Pharmacy Image */}
             <div className="card p-0 overflow-hidden">
               <div className="h-64 bg-gradient-to-br from-primary-400 to-pharmacy-400 relative">
                 <img 
@@ -100,7 +95,7 @@ export function PharmacyDetail() {
                   alt={pharmacy.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
+                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=400&fit=crop&q=80';
                   }}
                 />
                 {pharmacy.delivery && (
@@ -113,28 +108,6 @@ export function PharmacyDetail() {
               </div>
             </div>
 
-            {/* Contact Information */}
-            <div className="card">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <span>📞</span> Contact Information
-              </h2>
-              <div className="space-y-3">
-                {pharmacy.phone && (
-                  <div className="flex items-center gap-3">
-                    <span className="text-gray-600">Phone:</span>
-                    <a href={`tel:${pharmacy.phone}`} className="text-primary-600 hover:text-primary-700 font-medium">
-                      {pharmacy.phone}
-                    </a>
-                  </div>
-                )}
-                <div className="flex items-center gap-3">
-                  <span className="text-gray-600">Address:</span>
-                  <span className="text-gray-900">{pharmacy.sector}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Insurance Accepted */}
             <div className="card">
               <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <span>🏥</span> Insurance Accepted
@@ -151,7 +124,6 @@ export function PharmacyDetail() {
               </div>
             </div>
 
-            {/* Available Medicines */}
             <div className="card">
               <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <span>💊</span> Available Medicines
@@ -220,9 +192,7 @@ export function PharmacyDetail() {
             </div>
           </div>
 
-          {/* Sidebar */}
           <div className="space-y-6">
-            {/* Map */}
             <div className="card p-0 overflow-hidden">
               <div className="p-4 border-b bg-primary-50">
                 <h3 className="font-semibold text-gray-900">📍 Location</h3>
@@ -233,7 +203,6 @@ export function PharmacyDetail() {
               />
             </div>
 
-            {/* Quick Actions */}
             <div className="card">
               <h3 className="font-bold text-gray-900 mb-4">Quick Actions</h3>
               <div className="space-y-3">
@@ -242,12 +211,6 @@ export function PharmacyDetail() {
                   className="block w-full btn-primary text-center"
                 >
                   View Cart
-                </Link>
-                <Link 
-                  to="/prescription" 
-                  className="block w-full btn-secondary text-center"
-                >
-                  Upload Prescription
                 </Link>
                 {pharmacy.phone && (
                   <a 
@@ -259,34 +222,10 @@ export function PharmacyDetail() {
                 )}
               </div>
             </div>
-
-            {/* Pharmacy Info Card */}
-            <div className="card bg-primary-50 border-2 border-primary-200">
-              <h3 className="font-bold text-gray-900 mb-3">Pharmacy Details</h3>
-              <div className="space-y-2 text-sm">
-                <div>
-                  <span className="text-gray-600">Sector:</span>
-                  <span className="ml-2 font-medium text-gray-900">{pharmacy.sector}</span>
-                </div>
-                <div>
-                  <span className="text-gray-600">Delivery:</span>
-                  <span className="ml-2 font-medium text-gray-900">
-                    {pharmacy.delivery ? 'Yes ✓' : 'No'}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-gray-600">Insurance:</span>
-                  <span className="ml-2 font-medium text-gray-900">
-                    {pharmacy.accepts.length} types accepted
-                  </span>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
-
 

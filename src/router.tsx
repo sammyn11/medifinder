@@ -39,11 +39,9 @@ function ProtectedUserRoute({ children }: { children: React.ReactElement }) {
   const location = window.location.pathname;
 
   if (!isAuthenticated) {
-    // Redirect to login with return URL
     return <Navigate to={`/login?redirect=${encodeURIComponent(location)}`} replace />;
   }
 
-  // Don't allow pharmacies to place orders
   if (user?.role === 'pharmacy') {
     return <Navigate to="/" replace />;
   }
@@ -87,6 +85,3 @@ export const router = createBrowserRouter([
     ]
   }
 ]);
-
-
-

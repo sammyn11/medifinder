@@ -25,8 +25,8 @@ export function initializeDatabase() {
       lat REAL,
       lng REAL,
       description TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
@@ -35,7 +35,7 @@ export function initializeDatabase() {
     CREATE TABLE IF NOT EXISTS insurance_types (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL UNIQUE,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
@@ -58,7 +58,7 @@ export function initializeDatabase() {
       name TEXT NOT NULL,
       strength TEXT,
       requires_prescription BOOLEAN DEFAULT 0,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
@@ -86,9 +86,9 @@ export function initializeDatabase() {
       password TEXT NOT NULL,
       role TEXT DEFAULT 'user',
       pharmacy_id TEXT,
-      FOREIGN KEY (pharmacy_id) REFERENCES pharmacies(id) ON DELETE SET NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (pharmacy_id) REFERENCES pharmacies(id) ON DELETE SET NULL
     )
   `);
 
@@ -106,8 +106,8 @@ export function initializeDatabase() {
       prescription_file TEXT,
       delivery BOOLEAN DEFAULT 0,
       delivery_address TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (pharmacy_id) REFERENCES pharmacies(id) ON DELETE CASCADE
     )
   `);

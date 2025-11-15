@@ -1,52 +1,83 @@
-import { useEffect, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import './leafletFix';
 
-export interface MapMarker {
+interface Marker {
   id: string;
   name: string;
   lat: number;
   lng: number;
 }
 
-function FitBounds({ markers }: { markers: MapMarker[] }) {
-  const map = useMap();
-  const bounds = useMemo(() => {
-    if (!markers.length) return null;
-    const latLngs = markers.map(m => [m.lat, m.lng] as [number, number]);
-    return latLngs.length === 1 ? null : L.latLngBounds(latLngs);
-  }, [markers]);
-  useEffect(() => {
-    if (!markers.length) return;
-    if (bounds) {
-      map.fitBounds(bounds, { padding: [24, 24] });
-    } else {
-      map.setView([markers[0].lat, markers[0].lng], 14);
-    }
-  }, [bounds, map, markers]);
-  return null;
+interface MapViewProps {
+  markers: Marker[];
+  height?: number;
 }
 
-export function MapView({ markers, height = 320 }: { markers: MapMarker[]; height?: number }) {
-  const center = markers.length ? [markers[0].lat, markers[0].lng] : [-1.9441, 30.0619]; // Kigali default
+export function MapView({ markers, height = 400 }: MapViewProps) {
+  const mapRef = useRef<L.Map | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!mapContainerRef.current || markers.length === 0) return;
+
+    // Initialize map
+    if (!mapRef.current) {
+      mapRef.current = L.map(mapContainerRef.current).setView(
+        [markers[0].lat, markers[0].lng],
+        13
+      );
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+      }).addTo(mapRef.current);
+    }
+
+    // Clear existing markers
+    mapRef.current.eachLayer((layer) => {
+      if (layer instanceof L.Marker) {
+        mapRef.current!.removeLayer(layer);
+      }
+    });
+
+    // Add markers
+    markers.forEach((marker) => {
+      const icon = L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41],
+      });
+
+      L.marker([marker.lat, marker.lng], { icon })
+        .addTo(mapRef.current!)
+        .bindPopup(marker.name);
+    });
+
+    // Fit bounds if multiple markers
+    if (markers.length > 1) {
+      const bounds = L.latLngBounds(markers.map(m => [m.lat, m.lng]));
+      mapRef.current.fitBounds(bounds, { padding: [20, 20] });
+    } else if (markers.length === 1) {
+      mapRef.current.setView([markers[0].lat, markers[0].lng], 13);
+    }
+
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, [markers]);
+
   return (
-    <div className="w-full overflow-hidden rounded border" style={{ height }}>
-      <MapContainer center={center as any} zoom={13} style={{ height: '100%', width: '100%' }} scrollWheelZoom={false}>
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <FitBounds markers={markers} />
-        {markers.map(m => (
-          <Marker key={m.id} position={[m.lat, m.lng] as any}>
-            <Popup>{m.name}</Popup>
-          </Marker>
-        ))}
-      </MapContainer>
-    </div>
+    <div
+      ref={mapContainerRef}
+      style={{ height: `${height}px`, width: '100%' }}
+      className="rounded-lg"
+    />
   );
 }
-
 
